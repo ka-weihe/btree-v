@@ -9,10 +9,10 @@ const (
 
 struct Bnode {
 mut:
-	keys		[11]string
-	values	[11]int
+	keys     [11]string
+	values   [11]int
 	children &voidptr
-	size 		int
+	size     int
 }
 
 struct Tree {
