@@ -18,12 +18,15 @@ mut:
 struct Tree {
 mut:
 	root &Bnode
-pub:
+pub mut:
 	size int
 }
 
 fn new_bnode() &Bnode {
-	return &Bnode {}
+	return &Bnode {
+		children: 0
+		size: 0
+	}
 }
 
 pub fn new_tree() Tree {
@@ -181,17 +184,14 @@ fn (n mut Bnode) remove_from_non_leaf(idx int) {
 	if &Bnode(n.children[idx]).size >= degree {
 		predecessor := n.get_predecessor(idx)
 		n.keys[idx] = predecessor
-		mut node := &Bnode(n.children[idx])
-		node.remove_key(predecessor)
+		(&Bnode(n.children[idx])).remove_key(predecessor)
 	} else if &Bnode(n.children[idx + 1]).size >= degree {
 		successor := n.get_successor(idx)	
 		n.keys[idx] = successor
-		mut node := &Bnode(n.children[idx + 1])
-		node.remove_key(successor)
+		(&Bnode(n.children[idx + 1])).remove_key(successor)
 	} else {
 		n.merge(idx)
-		mut node := &Bnode(n.children[idx])
-		node.remove_key(k)
+		(&Bnode(n.children[idx])).remove_key(k)
 	}
 }
 
@@ -295,7 +295,7 @@ pub fn (t mut Tree) delete(k string) {
 		t.size--
 	} 
 	if t.root.size == 0 {
-		tmp := t.root
+		// tmp := t.root
 		if t.root.children ==  0 {
 			return
 		} else {
