@@ -103,6 +103,8 @@ pub fn (t mut Tree) set(key string, value int) {
 fn (n mut Bnode) split_child(child_index int, y mut Bnode) {
 	mut z := new_bnode()
 	mut j := mid_index
+	z.size = mid_index
+	y.size = mid_index
 	for j-- > 0 {
 		z.keys[j] = y.keys[j + degree]
 		z.values[j] = y.values[j + degree]
@@ -114,8 +116,6 @@ fn (n mut Bnode) split_child(child_index int, y mut Bnode) {
 			z.children[j] = y.children[j + degree]
 		}
 	}
-	z.size = mid_index
-	y.size = mid_index
 	if n.children == 0 {
 		n.children = &voidptr(malloc(children_size))
 	}
