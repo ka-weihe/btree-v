@@ -1,12 +1,26 @@
 module btree
 
+// B-trees are balanced search trees with all leaves
+// at the same level. B-trees are generally faster than 
+// binary search trees due to the better locality of 
+// reference, since multiple keys are stored in one node.
+
+// The number for `degree` has been picked
+// through vigorous benchmarking, but can be changed
+// to any number > 2. `degree` determines the size
+// of each node.
 const (
 	degree = 6
 	mid_index = degree - 1
 	max_length = 2 * degree - 1
+	min_length = degree - 1
 	children_size = sizeof(voidptr) * (max_length + 1)
 )
 
+// Since a very large portion of the nodes are 
+// leaves (has no children), a lot of memory 
+// is saved by dynamically allocating memory for
+// children.
 struct Bnode {
 mut:
 	keys     [11]string
@@ -29,6 +43,9 @@ fn new_bnode() &Bnode {
 	}
 }
 
+// The tree is initialized with an empty node
+// as root - to avoid having to check whether 
+// the root is null for each insertion.
 pub fn new_tree() Tree {
 	return Tree {
 		root: new_bnode()
@@ -36,6 +53,9 @@ pub fn new_tree() Tree {
 	}
 }
 
+// This implementation does proactive insertion,
+// meaning that splits are done top-down and not
+// bottom-up. 
 pub fn (t mut Tree) set(key string, value int) {
 	mut node := t.root
 	mut child_index := 0
@@ -266,7 +286,7 @@ fn (n mut Bnode) borrow_from_next(idx int) {
 fn (n mut Bnode) merge(idx int) {
 	mut child := &Bnode(n.children[idx])
 	sibling := &Bnode(n.children[idx + 1])
-	child.keys[degree - 1] = n.keys[idx]
+	child.keys[min_length] = n.keys[idx]
 	for i := 0; i < sibling.size; i++ {
 		child.keys[i + degree] = sibling.keys[i]
 	}
