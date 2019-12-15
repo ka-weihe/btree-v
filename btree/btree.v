@@ -12,7 +12,7 @@ module btree
 const (
 	degree = 6
 	mid_index = degree - 1
-	max_length = 2 * degree - 1
+	max_length = 11 //2 * degree - 1
 	min_length = degree - 1
 	children_size = sizeof(voidptr) * (max_length + 1)
 )
@@ -23,13 +23,14 @@ const (
 // children.
 struct Bnode {
 mut:
-	keys     [11]string
-	values   [11]int
+	keys     [max_length]string
+	values   [max_length]voidptr
 	children &voidptr
 	size     int
 }
 
 struct Tree {
+	element_size int
 mut:
 	root &Bnode
 pub mut:
@@ -50,13 +51,14 @@ pub fn new_tree() Tree {
 	return Tree {
 		root: new_bnode()
 		size: 0
+		element_size: 0
 	}
 }
 
 // This implementation does proactive insertion,
 // meaning that splits are done top-down and not
 // bottom-up. 
-pub fn (t mut Tree) set(key string, value int) {
+pub fn (t mut Tree) set(key string, value voidptr) {
 	mut node := t.root
 	mut child_index := 0
 	mut parent := &Bnode(0)
@@ -95,7 +97,8 @@ pub fn (t mut Tree) set(key string, value int) {
 		node.values[i + 1] = node.values[i]
 	}
 	node.keys[i + 1] = key
-	node.values[i + 1] = value
+	node.values[i + 1] = voidptr(malloc(t.element_size))
+	C.memcpy(&node.values[i + 1], value, t.element_size)
 	node.size++
 	t.size++
 }
@@ -132,20 +135,21 @@ fn (n mut Bnode) split_child(child_index int, y mut Bnode) {
 	n.size++
 }
 
-pub fn (t Tree) get(key string) int {
+pub fn (t Tree) get(key string, out voidptr) bool {
 	mut node := t.root
 	for {
 		mut i := node.size
 		for i-- > 0 && key < node.keys[i] {}
 		if i != -1 && key == node.keys[i] {
-			return node.values[i]
+			C.memcpy(out, node.values[i], t.element_size)
+			return true
 		}
 		if node.children == 0 {
 			break
 		}
 		node = &Bnode(node.children[i + 1])
 	}
-	return 0
+	return false
 }
 
 pub fn (t Tree) exists(key string) bool {
