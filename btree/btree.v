@@ -7,7 +7,7 @@ module btree
 
 // The number for `degree` has been picked
 // through vigorous benchmarking, but can be changed
-// to any number > 2. `degree` determines the size
+// to any number > 1. `degree` determines the size
 // of each node.
 const (
 	degree = 6
