@@ -84,21 +84,21 @@ pub fn (t mut Tree) set(key string, value int) {
 			return
 		}
 		if node.children == 0 {
-			break
+			mut j := node.size
+			for j-- > 0 && key < node.keys[j] {
+				node.keys[j + 1] = node.keys[j]
+				node.values[j + 1] = node.values[j]
+			}
+			node.keys[j + 1] = key
+			node.values[j + 1] = value
+			node.size++
+			t.size++
+			return
 		}
 		parent = node
 		child_index = i + 1
 		node = &Bnode(node.children[child_index])
 	}
-	mut i := node.size
-	for i-- > 0 && key < node.keys[i] {
-		node.keys[i + 1] = node.keys[i]
-		node.values[i + 1] = node.values[i]
-	}
-	node.keys[i + 1] = key
-	node.values[i + 1] = value
-	node.size++
-	t.size++
 }
 
 fn (n mut Bnode) split_child(child_index int, y mut Bnode) {
