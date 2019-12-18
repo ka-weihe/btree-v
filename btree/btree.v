@@ -173,7 +173,7 @@ fn (n Bnode) find_key(k string) int {
 	return idx
 }
 
-fn (n mut Bnode) remove_key(k string) bool {
+fn (n mut Bnode) remove_key(k string) {
 	idx := n.find_key(k)
 	if idx < n.size && n.keys[idx] == k {
 		if n.children == 0 {
@@ -181,16 +181,25 @@ fn (n mut Bnode) remove_key(k string) bool {
 		} else {
 			n.remove_from_non_leaf(idx)
 		}
-	} else if n.children == 0 {
-		return false  
-	} else if &Bnode(n.children[idx]).size < degree {
-		n.fill(idx)
-	} else if idx == n.size && idx > n.size {
-		&Bnode(n.children[idx - 1]).remove_key(k)
 	} else {
-		&Bnode(n.children[idx]).remove_key(k)
+		if n.children == 0 {
+			return
+		}
+		flag := if idx == n.size {
+			true
+		} else {
+			false
+		}
+		if (&Bnode(n.children[idx])).size < degree {
+			n.fill(idx)
+		}
+
+		if flag && idx > n.size {
+			(&Bnode(n.children[idx - 1])).remove_key(k)
+		} else {
+			(&Bnode(n.children[idx])).remove_key(k)
+		}
 	}
-	return true
 }
 
 fn (n mut Bnode) remove_from_leaf(idx int) {
@@ -311,10 +320,12 @@ pub fn (t mut Tree) delete(k string) {
 	if t.root.size == 0 {
 		return
 	}
-	is_removed := t.root.remove_key(k)
-	if is_removed {
+	if t.exists(k) {
 		t.size--
 	} 
+
+	t.root.remove_key(k)
+	
 	if t.root.size == 0 {
 		// tmp := t.root
 		if t.root.children ==  0 {

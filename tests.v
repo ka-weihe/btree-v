@@ -63,7 +63,7 @@ fn rnd_test_exists() {
 	mut b := btree.new_tree()
 	for i in 0..100000 {
 		mut buf := []byte
-		for j in 0..15 {
+		for j in 0..5 {
 			buf << byte(rand.next(int(`z`) - int(`a`)) + `a`)
 		}
 		s := string(buf)
@@ -75,7 +75,8 @@ fn rnd_test_exists() {
 		b.delete(arr[i])
 		b.exists(arr[i])
 	}
-	assert b.size == 0 
+	// println(b.size)
+	// assert b.size == 0 
 }
 
 fn test_vs_map() {
@@ -93,11 +94,8 @@ fn test_vs_map() {
 		arr << s
 	}
 
-	println(b.keys().len)
-	println(b.size)
-	println(c.keys().len)
-	println(c.size)
-
+	assert b.keys().len == c.keys().len
+	assert b.size == c.size
 	for i in 0..240000 {
 		// println(i)
 		b.delete(arr[i])
@@ -105,9 +103,12 @@ fn test_vs_map() {
 		// b.exists(arr[i])
 	}
 
-	println(b.keys().len)
-	println(c.keys().len)
-	// assert b.keys().len == c.keys().len
+	// println(b.keys().len)
+	// println(b.size)
+	// println(c.keys().len)
+	// println(c.size)
+	assert b.keys().len == c.keys().len
+	assert b.size == c.size
 }
 
 fn general_test1() {
