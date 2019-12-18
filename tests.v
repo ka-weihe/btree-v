@@ -79,7 +79,7 @@ fn rnd_test_exists() {
 	// assert b.size == 0 
 }
 
-fn test_vs_map() {
+fn test_vs_map1() {
 	mut arr := []string
 	mut b := btree.new_tree()
 	mut c := map[string]int
@@ -96,11 +96,19 @@ fn test_vs_map() {
 
 	assert b.keys().len == c.keys().len
 	assert b.size == c.size
+	mut ckeys := c.keys()
+	ckeys.sort()
+	bkeys := b.keys()
+	for i, val in bkeys {
+		assert val == ckeys[i] 
+	}
+
 	for i in 0..240000 {
 		// println(i)
+		// assert b.exists(arr[i]) == true
 		b.delete(arr[i])
 		c.delete(arr[i])
-		// b.exists(arr[i])
+		// assert b.exists(arr[i]) == false
 	}
 
 	// println(b.keys().len)
@@ -109,6 +117,29 @@ fn test_vs_map() {
 	// println(c.size)
 	assert b.keys().len == c.keys().len
 	assert b.size == c.size
+}
+
+fn test_vs_map2() {
+	mut arr := []string
+	mut b := btree.new_tree()
+	mut c := map[string]int
+	for i in 0..240000 {
+		mut buf := []byte
+		for j in 0..4 {
+			buf << byte(rand.next(int(`z`) - int(`a`)) + `a`)
+		}
+		s := string(buf)
+		b.set(s, i)
+		c[s] = i
+		arr << s
+	}
+
+	for i in 0..240000 {
+		assert c.size == b.size
+		assert c[arr[i]] == b.get(arr[i])
+		c.delete(arr[i])
+		b.delete(arr[i])
+	}
 }
 
 fn general_test1() {
@@ -226,5 +257,6 @@ fn main() {
 	test_delete()
 	test_exists()
 	rnd_test_exists()
-	test_vs_map()
+	test_vs_map1()
+	test_vs_map2()
 }

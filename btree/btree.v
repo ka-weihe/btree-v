@@ -205,6 +205,7 @@ fn (n mut Bnode) remove_key(k string) {
 fn (n mut Bnode) remove_from_leaf(idx int) {
 	for i := idx + 1; i < n.size; i++ {
 		n.keys[i - 1] = n.keys[i]
+		n.values[i - 1] = n.values[i]
 	}
 	n.size--
 }
@@ -212,33 +213,25 @@ fn (n mut Bnode) remove_from_leaf(idx int) {
 fn (n mut Bnode) remove_from_non_leaf(idx int) {
 	k := n.keys[idx]
 	if &Bnode(n.children[idx]).size >= degree {
-		predecessor := n.get_predecessor(idx)
-		n.keys[idx] = predecessor
-		(&Bnode(n.children[idx])).remove_key(predecessor)
+		mut current := &Bnode(n.children[idx])
+		for current.children != 0 {
+			current = &Bnode(current.children[current.size])
+		}
+		n.keys[idx] = current.keys[current.size - 1]
+		n.values[idx] = current.values[current.size - 1]
+		(&Bnode(n.children[idx])).remove_key(n.keys[idx])
 	} else if &Bnode(n.children[idx + 1]).size >= degree {
-		successor := n.get_successor(idx)	
-		n.keys[idx] = successor
-		(&Bnode(n.children[idx + 1])).remove_key(successor)
+		mut current := &Bnode(n.children[idx + 1])
+		for current.children != 0 {
+			current = &Bnode(current.children[0])
+		}
+		n.keys[idx] = current.keys[0]
+		n.values[idx] = current.values[0]
+		(&Bnode(n.children[idx + 1])).remove_key(n.keys[idx])
 	} else {
 		n.merge(idx)
 		(&Bnode(n.children[idx])).remove_key(k)
 	}
-}
-
-fn (n Bnode) get_predecessor(idx int) string { 
-	mut current := &Bnode(n.children[idx])
-	for current.children != 0 {
-		current = &Bnode(current.children[current.size])
-	}
-	return current.keys[current.size - 1]
-}
-
-fn (n Bnode) get_successor(idx int) string{ 
-	mut current := &Bnode(n.children[idx + 1])
-	for current.children != 0 {
-		current = &Bnode(current.children[0])
-	}
-	return current.keys[0]
 }
 
 fn (n mut Bnode) fill(idx int) {
@@ -258,6 +251,7 @@ fn (n mut Bnode) borrow_from_prev(idx int) {
 	mut sibling := &Bnode(n.children[idx - 1])
 	for i := child.size - 1; i >= 0; i-- {
 		child.keys[i + 1] = child.keys[i] 
+		child.values[i + 1] = child.values[i] 
 	}
 	if child.children != 0 { 
 		for i := child.size; i >= 0; i-- {
@@ -265,10 +259,12 @@ fn (n mut Bnode) borrow_from_prev(idx int) {
 		}
 	}
 	child.keys[0] = n.keys[idx - 1] 
+	child.values[0] = n.values[idx - 1] 
 	if child.children != 0 {
 		child.children[0] = sibling.children[sibling.size]
 	}
 	n.keys[idx - 1] = sibling.keys[sibling.size - 1]
+	n.values[idx - 1] = sibling.values[sibling.size - 1]
 	child.size++ 
 	sibling.size-- 
 }
@@ -277,12 +273,15 @@ fn (n mut Bnode) borrow_from_next(idx int) {
 	mut child := &Bnode(n.children[idx])
 	mut sibling := &Bnode(n.children[idx + 1])
 	child.keys[child.size] = n.keys[idx]
+	child.values[child.size] = n.values[idx]
 	if child.children != 0 {
 		child.children[child.size + 1] = sibling.children[0]
 	}
 	n.keys[idx] = sibling.keys[0]
+	n.values[idx] = sibling.values[0]
 	for i := 1; i < sibling.size; i++ {
 		sibling.keys[i - 1] = sibling.keys[i]
+		sibling.values[i - 1] = sibling.values[i]
 	}
 	if sibling.children != 0 {
 		for i := 1; i <= sibling.size; i++ {
@@ -297,8 +296,10 @@ fn (n mut Bnode) merge(idx int) {
 	mut child := &Bnode(n.children[idx])
 	sibling := &Bnode(n.children[idx + 1])
 	child.keys[min_length] = n.keys[idx]
+	child.values[min_length] = n.values[idx]
 	for i := 0; i < sibling.size; i++ {
 		child.keys[i + degree] = sibling.keys[i]
+		child.values[i + degree] = sibling.values[i]
 	}
 	if child.children != 0 {
 		for i := 0; i <= sibling.size; i++ {
@@ -307,6 +308,7 @@ fn (n mut Bnode) merge(idx int) {
 	}
 	for i := idx + 1; i < n.size; i++ {
 		n.keys[i - 1] = n.keys[i]
+		n.values[i - 1] = n.values[i]
 	}
 	for i := idx + 2; i <= n.size; i++ {
 		n.children[i - 1] = n.children[i]
