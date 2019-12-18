@@ -69,6 +69,7 @@ pub fn (t mut Tree) set(key string, value int) {
 			parent.split_child(child_index, mut node)
 			if key == parent.keys[child_index] {
 				parent.values[child_index] = value
+				return
 			}
 			node = if key < parent.keys[child_index] {
 				&Bnode(parent.children[child_index])
