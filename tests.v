@@ -78,6 +78,38 @@ fn rnd_test_exists() {
 	assert b.size == 0 
 }
 
+fn test_vs_map() {
+	mut arr := []string
+	mut b := btree.new_tree()
+	mut c := map[string]int
+	for i in 0..240000 {
+		mut buf := []byte
+		for j in 0..4 {
+			buf << byte(rand.next(int(`z`) - int(`a`)) + `a`)
+		}
+		s := string(buf)
+		b.set(s, i)
+		c[s] = i
+		arr << s
+	}
+
+	println(b.keys().len)
+	println(b.size)
+	println(c.keys().len)
+	println(c.size)
+
+	for i in 0..240000 {
+		// println(i)
+		b.delete(arr[i])
+		c.delete(arr[i])
+		// b.exists(arr[i])
+	}
+
+	println(b.keys().len)
+	println(c.keys().len)
+	// assert b.keys().len == c.keys().len
+}
+
 fn general_test1() {
 	mut m := btree.new_tree()
 	assert m.size == 0
@@ -179,7 +211,9 @@ fn test_exists() {
 	m.delete('five')
 	assert m.exists('five') == false
 	assert m.size == 0
-}	
+}
+
+
 
 fn main() {
 	rnd_test_keys()
@@ -191,4 +225,5 @@ fn main() {
 	test_delete()
 	test_exists()
 	rnd_test_exists()
+	test_vs_map()
 }
