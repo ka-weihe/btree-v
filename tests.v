@@ -138,6 +138,7 @@ fn test_vs_map2() {
 	}
 	
 	assert c.keys().len == b.keys().len
+	assert c.size == b.size
 }
 
 fn test_vs_map3() {
@@ -161,8 +162,8 @@ fn test_vs_map3() {
 		b.delete(arr[i])
 	}
 	assert c.keys().len == b.keys().len
+	assert c.size == b.size
 }
-
 
 fn general_test1() {
 	mut m := btree.new_tree()

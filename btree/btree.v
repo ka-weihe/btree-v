@@ -12,7 +12,7 @@ module btree
 const (
 	degree = 6
 	mid_index = degree - 1
-	max_length = 2 * degree - 1
+	max_length = 11// should be 2 * degree - 1
 	min_length = degree - 1
 	children_size = sizeof(voidptr) * (max_length + 1)
 )
@@ -23,8 +23,8 @@ const (
 // children.
 struct Bnode {
 mut:
-	keys     [11]string
-	values   [11]int
+	keys     [max_length]string
+	values   [max_length]int
 	children &voidptr
 	size     int
 }
@@ -319,7 +319,7 @@ pub fn (t mut Tree) delete(k string) {
 		return
 	}
 	
-	// This should not be used. Will be fixed soon
+	// This is slow
 	if t.exists(k) {
 		t.size--
 	} else {
