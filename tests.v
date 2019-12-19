@@ -104,17 +104,10 @@ fn test_vs_map1() {
 	}
 
 	for i in 0..240000 {
-		// println(i)
-		// assert b.exists(arr[i]) == true
 		b.delete(arr[i])
 		c.delete(arr[i])
-		// assert b.exists(arr[i]) == false
 	}
 
-	// println(b.keys().len)
-	// println(b.size)
-	// println(c.keys().len)
-	// println(c.size)
 	assert b.keys().len == c.keys().len
 	assert b.size == c.size
 }
@@ -137,15 +130,8 @@ fn test_vs_map2() {
 		}
 
 		for i in 0..5000 {
-			// println(i)
-			println('c: $c.size')
-			println('b: $b.size')
 			assert c.size == b.size
-			// println('c: ${c[arr[i]]}')
-			// println('b: ${b.get(arr[i])}')
-			// assert c[arr[i]] == b.get(arr[i])
-			// println(c[arr[i]])
-			// println(b.get(arr[i]))
+			assert c[arr[i]] == b.get(arr[i])
 			c.delete(arr[i])
 			b.delete(arr[i])
 		}

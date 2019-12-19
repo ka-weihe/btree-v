@@ -185,11 +185,7 @@ fn (n mut Bnode) remove_key(k string) {
 		if n.children == 0 {
 			return
 		}
-		flag := if idx == n.size {
-			true
-		} else {
-			false
-		}
+		flag := if idx == n.size {true} else {false}
 		if (&Bnode(n.children[idx])).size < degree {
 			n.fill(idx)
 		}
@@ -322,9 +318,13 @@ pub fn (t mut Tree) delete(k string) {
 	if t.root.size == 0 {
 		return
 	}
+	
+	// This should not be used. Will be fixed soon
 	if t.exists(k) {
 		t.size--
-	} 
+	} else {
+		return
+	}
 
 	t.root.remove_key(k)
 	
