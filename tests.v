@@ -129,11 +129,20 @@ fn test_vs_map2() {
 			arr << s
 		}
 
-		for i in 0..5000 {
+		for i in 0..10000 {
 			assert c.size == b.size
 			assert c[arr[i]] == b.get(arr[i])
 			c.delete(arr[i])
 			b.delete(arr[i])
+
+			mut buf := []byte
+			for j in 0..5 {
+				buf << byte(rand.next(int(`z`) - int(`a`)) + `a`)
+			}
+			s := string(buf)
+
+			c.delete(s)
+			b.delete(s)
 		}
 	}
 	
@@ -147,7 +156,7 @@ fn test_vs_map3() {
 	mut c := map[string]int
 	for i in 0..4000 {
 		mut buf := []byte
-		for j in 0..3 {
+		for j in 0..4 {
 			buf << byte(rand.next(int(`z`) - int(`a`)) + `a`)
 		}
 		s := string(buf)
@@ -158,6 +167,8 @@ fn test_vs_map3() {
 
 	for i in 0..4000 {
 		assert c.keys().len == b.keys().len
+		assert c.size == b.size
+		assert c[arr[i]] == b.get(arr[i])
 		c.delete(arr[i])
 		b.delete(arr[i])
 	}
