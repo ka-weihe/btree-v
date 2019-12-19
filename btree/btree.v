@@ -213,17 +213,19 @@ fn (n mut Bnode) remove_from_non_leaf(idx int) {
 		for current.children != 0 {
 			current = &Bnode(current.children[current.size])
 		}
-		n.keys[idx] = current.keys[current.size - 1]
+		predecessor := current.keys[current.size - 1]
+		n.keys[idx] = predecessor 
 		n.values[idx] = current.values[current.size - 1]
-		(&Bnode(n.children[idx])).remove_key(n.keys[idx])
+		(&Bnode(n.children[idx])).remove_key(predecessor)
 	} else if &Bnode(n.children[idx + 1]).size >= degree {
 		mut current := &Bnode(n.children[idx + 1])
 		for current.children != 0 {
 			current = &Bnode(current.children[0])
 		}
-		n.keys[idx] = current.keys[0]
+		successor := current.keys[0]
+		n.keys[idx] = successor
 		n.values[idx] = current.values[0]
-		(&Bnode(n.children[idx + 1])).remove_key(n.keys[idx])
+		(&Bnode(n.children[idx + 1])).remove_key(successor)
 	} else {
 		n.merge(idx)
 		(&Bnode(n.children[idx])).remove_key(k)
