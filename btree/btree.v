@@ -77,17 +77,18 @@ pub fn (t mut Tree) set(key string, value int) {
 				&Bnode(parent.children[child_index + 1])
 			}
 		}
-		mut i := node.size
-		for i-- > 0 && key < node.keys[i] {}
-		if i != -1 && key == node.keys[i] {
+		mut i := 0
+		for i < node.size && key > node.keys[i] { i++ }
+		if i != node.size && key == node.keys[i] {
 			node.values[i] = value
 			return
 		}
 		if node.children == 0 {
-			mut j := node.size
-			for j-- > 0 && key < node.keys[j] {
+			mut j := node.size - 1
+			for j >= 0 && key < node.keys[j] {
 				node.keys[j + 1] = node.keys[j]
 				node.values[j + 1] = node.values[j]
+				j--
 			}
 			node.keys[j + 1] = key
 			node.values[j + 1] = value
@@ -96,24 +97,22 @@ pub fn (t mut Tree) set(key string, value int) {
 			return
 		}
 		parent = node
-		child_index = i + 1
+		child_index = i
 		node = &Bnode(node.children[child_index])
 	}
 }
 
 fn (n mut Bnode) split_child(child_index int, y mut Bnode) {
 	mut z := new_bnode()
-	mut j := mid_index
 	z.size = mid_index
 	y.size = mid_index
-	for j-- > 0 {
+	for j := mid_index - 1; j >= 0; j-- {
 		z.keys[j] = y.keys[j + degree]
 		z.values[j] = y.values[j + degree]
 	}
 	if y.children != 0 {
 		z.children = &voidptr(malloc(children_size))
-		j = degree
-		for j-- > 0 {
+		for j := degree - 1; j >= 0; j-- {
 			z.children[j] = y.children[j + degree]
 		}
 	}
@@ -121,7 +120,7 @@ fn (n mut Bnode) split_child(child_index int, y mut Bnode) {
 		n.children = &voidptr(malloc(children_size))
 	}
 	n.children[n.size + 1] = n.children[n.size]
-	for j = n.size; j > child_index; j-- {
+	for j := n.size; j > child_index; j-- {
 		n.keys[j] = n.keys[j - 1]
 		n.values[j] = n.values[j - 1]
 		n.children[j] = n.children[j - 1]
@@ -136,8 +135,8 @@ fn (n mut Bnode) split_child(child_index int, y mut Bnode) {
 pub fn (t Tree) get(key string) int {
 	mut node := t.root
 	for {
-		mut i := node.size
-		for i-- > 0 && key < node.keys[i] {}
+		mut i := node.size - 1
+		for i >= 0 && key < node.keys[i] { i-- }
 		if i != -1 && key == node.keys[i] {
 			return node.values[i]
 		}
@@ -152,8 +151,8 @@ pub fn (t Tree) get(key string) int {
 pub fn (t Tree) exists(key string) bool {
 	mut node := t.root
 	for {
-		mut i := node.size
-		for i-- != 0 && key < node.keys[i] {}
+		mut i := node.size - 1
+		for i >= 0 && key < node.keys[i] { i-- }
 		if i != -1 && key == node.keys[i] {
 			return true
 		}
