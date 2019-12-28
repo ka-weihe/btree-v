@@ -363,32 +363,38 @@ pub fn (t Tree) free() {
 	// free(t.root)
 }
 
-fn (n Bnode) preoder_keys(ref mut ArrayReference) []string {
-	mut i := 0
-	if n.children == 0 {
-		i = 0
-		for i < n.size {
-			ref.array << n.keys[i]
-			i++
+// Insert all keys of the subtree into array `keys`
+// starting at `at`. Keys are inserted in order. 
+fn (n Bnode) subkeys(keys mut []string, at int) int {
+	mut position := at
+	if (n.children != 0) {
+		// Traverse children and insert
+		// keys inbetween children
+		for i in 0..n.size {
+			child := &Bnode(n.children[i])
+			position += child.subkeys(mut keys, position)
+			keys[position] = n.keys[i]
+			position++
 		}
+		// Insert the keys of the last child
+		child := &Bnode(n.children[n.size])
+		position += child.subkeys(mut keys, position)
 	} else {
-		i = 0
-		for i < n.size {
-			&Bnode(n.children[i]).preoder_keys(mut ref)
-			ref.array << n.keys[i]
-			i++
+		// If leaf, insert keys
+		for i in 0..n.size {
+			keys[position + i] = n.keys[i]
 		}
-		&Bnode(n.children[i]).preoder_keys(mut ref)
-	} 
-	return ref.array
-}
-
-struct ArrayReference {
-mut:
-	array []string
+		position += n.size
+	}
+	// Return # of added keys
+	return position - at
 }
 
 pub fn (t Tree) keys() []string {
-	mut keys := ArrayReference{}
-	return t.root.preoder_keys(mut keys)
+	mut keys := [''].repeat(t.size)
+	if (t.root.size == 0) {
+		return keys
+	}
+	t.root.subkeys(mut keys, 0)
+	return keys
 }
